@@ -1,0 +1,13 @@
+Code-Review+2: Brian Buchanan <bpbuch@gmail.com>
+Verified+1: Brian Buchanan <bpbuch@gmail.com>
+Code-Review+2: Troy Ronda <troy@troyronda.com>
+F1-VerifyBuild+1: Arnaud J Le Hors <lehors@us.ibm.com>
+F2-DocBuild+1: Arnaud J Le Hors <lehors@us.ibm.com>
+F2-SmokeTest+1: Arnaud J Le Hors <lehors@us.ibm.com>
+F3-IntegrationTest+1: Arnaud J Le Hors <lehors@us.ibm.com>
+F3-UnitTest+1: Arnaud J Le Hors <lehors@us.ibm.com>
+Submitted-by: Arnaud J Le Hors <lehors@us.ibm.com>
+Submitted-at: Sat, 04 Aug 2018 22:07:47 +0000
+Reviewed-on: https://gerrit.hyperledger.org/r/25081
+Project: fabric-cli
+Branch: refs/heads/master
