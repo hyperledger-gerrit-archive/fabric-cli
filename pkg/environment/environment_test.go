@@ -51,6 +51,10 @@ func TestGetSettings(t *testing.T) {
 			assert.Nil(t, err)
 			assert.Equal(t, settings.Home, test.home)
 			assert.Equal(t, settings.Home.Plugins(), test.plugins)
+
+			for k := range test.env {
+				os.Unsetenv(k)
+			}
 		})
 	}
 }
