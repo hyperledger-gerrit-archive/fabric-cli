@@ -30,8 +30,8 @@ func NewFabricCommand(settings *environment.Settings) *cobra.Command {
 
 	// load all plugins into the root command
 	loadPlugins(cmd, settings, &plugin.DefaultHandler{
-		Dir:              settings.Home.Plugins(),
-		MetadataFileName: plugin.DefaultMetadataFileName,
+		Dir:      settings.Home.Plugins(),
+		Filename: plugin.DefaultFilename,
 	})
 
 	return cmd
