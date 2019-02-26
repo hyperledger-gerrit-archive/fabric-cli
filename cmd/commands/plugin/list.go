@@ -1,5 +1,5 @@
 /*
-Copyright © 2019 State Street Bank and Trust Company.  All rights reserved
+Copyright State Street Corp. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package plugin
 
 import (
+	"errors"
 	"fmt"
 	"io"
 
@@ -18,9 +19,9 @@ import (
 
 // NewPluginListCommand creates a new "fabric plugin list" command
 func NewPluginListCommand(settings *environment.Settings) *cobra.Command {
-	pcmd := pluginListCommand{
-		out: settings.Streams.Out,
-		handler: &plugin.DefaultHandler{
+	c := ListCommand{
+		Out: settings.Streams.Out,
+		Handler: &plugin.DefaultHandler{
 			Dir:      settings.Home.Plugins(),
 			Filename: plugin.DefaultFilename,
 		},
@@ -30,26 +31,34 @@ func NewPluginListCommand(settings *environment.Settings) *cobra.Command {
 		Use:   "list",
 		Short: "list all installed plugins",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return pcmd.run()
+			return c.Run()
 		},
 	}
+
+	cmd.SetOutput(c.Out)
 
 	return cmd
 }
 
-type pluginListCommand struct {
-	out     io.Writer
-	handler plugin.Handler
+// ListCommand implements the plugin list command
+type ListCommand struct {
+	Out     io.Writer
+	Handler plugin.Handler
 }
 
-func (cmd *pluginListCommand) run() error {
-	plugins, err := cmd.handler.GetPlugins()
+// Run executes the command
+func (cmd *ListCommand) Run() error {
+	plugins, err := cmd.Handler.GetPlugins()
 	if err != nil {
 		return err
 	}
 
+	if len(plugins) == 0 {
+		return errors.New("no plugins currently exist")
+	}
+
 	for _, plugin := range plugins {
-		fmt.Fprint(cmd.out, plugin.Name, "\n")
+		fmt.Fprint(cmd.Out, plugin.Name, "\n")
 	}
 
 	return nil
