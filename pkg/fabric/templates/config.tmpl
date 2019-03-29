@@ -1,0 +1,38 @@
+client:
+    organization: {{.Context.Organization}}
+
+    cryptoconfig: 
+        path: {{.CryptoConfig}}
+
+    credentialStore:
+        path: "{{.CredentialStore}}/service-kvs"
+        cryptoStore:
+            path: "{{.CredentialStore}}/service-msp"
+
+organizations:
+{{- range .Organizations}}
+    {{.ID}}:
+        mspid: {{.MSP.ID}}
+        cryptoPath: {{.MSP.Store}}
+        peers:
+    {{- range .Peers}}
+            - {{.}}
+    {{- end}}
+{{- end}}
+
+orderers:
+{{- range .Orderers}}
+    {{.ID}}:
+        url: {{.URL}}
+        tlsCACerts:
+            path: {{.TLS}}
+{{- end}}
+
+peers:
+{{- range .Peers}}
+    {{.ID}}:
+        url: {{.URL}}
+        eventUrl: {{.EventURL}}
+        tlsCACerts:
+            path: {{.TLS}}
+{{- end}}
