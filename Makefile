@@ -16,10 +16,6 @@ clean:
 	rm -rf $(BIN_DIR)
 	find . -name "mocks" -type d -print0 | xargs -0 /bin/rm -rf
 
-.PHONY: dep
-dep:
-	$(DEP_CMD) ensure
-
 .PHONY: generate
 generate:
 	$(GO_CMD) generate ./...
