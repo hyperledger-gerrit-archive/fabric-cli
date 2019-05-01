@@ -7,68 +7,114 @@ SPDX-License-Identifier: Apache-2.0
 package environment
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 
-	"github.com/spf13/viper"
-	yaml "gopkg.in/yaml.v2"
+	"github.com/spf13/pflag"
+	"gopkg.in/yaml.v2"
 )
 
-// DefaultConfigFilename is the config filename
+// DefaultConfigFilename is the default config filename
 const DefaultConfigFilename = "config.yaml"
 
-// Config defines the required actions for managing the config file
-type Config interface {
-	FromFile() (*Settings, error)
-	Save() error
+// Config contains information needed to manage fabric networks
+type Config struct {
+	Networks       map[string]*Network `yaml:",omitempty"`
+	Contexts       map[string]*Context `yaml:",omitempty"`
+	CurrentContext string              `yaml:"current-context,omitempty"`
 }
 
-// DefaultConfig contains the default operations for managing the config file
-type DefaultConfig struct {
-	*Settings
-
-	Filename string
+// Network contains a fabric network's configurations
+type Network struct {
+	// path to fabric go sdk config file
+	ConfigPath string `yaml:"path,omitempty"`
 }
 
-// FromFile retruns an instance of settings only based on config file
-// This is used to manage the config file without saving overrides
-func (c *DefaultConfig) FromFile() (*Settings, error) {
-	v := viper.New()
+// Context contains network interaction parameters
+type Context struct {
+	Network      string   `yaml:",omitempty"`
+	Organization string   `yaml:",omitempty"`
+	User         string   `yaml:",omitempty"`
+	Channel      string   `yaml:",omitempty"`
+	Orderers     []string `yaml:",omitempty"`
+	Peers        []string `yaml:",omitempty"`
+}
 
-	v.Set("home", c.Settings.Home.String())
+// AddFlags appeneds config flags onto an existing flag set
+func (c *Config) AddFlags(fs *pflag.FlagSet) {
+	fs.StringVar(&c.CurrentContext, "context", c.CurrentContext, "override the current context")
+}
 
-	// Load config files if one exists
-	v.SetConfigFile(Home(v.GetString("home")).Path(c.Filename))
-	if _, err := os.Stat(v.ConfigFileUsed()); err == nil {
-		if err := v.ReadInConfig(); err != nil {
-			return nil, err
-		}
+// LoadFromFile populates config based on the specified path
+func (c *Config) LoadFromFile(path string) error {
+	if _, err := os.Stat(path); err != nil {
+		return err
 	}
 
-	s := NewDefaultSettings()
-
-	if err := v.Unmarshal(s); err != nil {
-		return nil, err
-	}
-
-	return s, nil
-}
-
-// Save writes the current Settings to the config file
-// Be careful not to save environment variable overrides
-func (c *DefaultConfig) Save() error {
-	data, err := yaml.Marshal(c.Settings)
+	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return err
 	}
 
-	if err := c.Settings.Home.Init(); err != nil {
-		return err
-	}
-
-	if err := ioutil.WriteFile(c.Settings.Home.Path(c.Filename), data, 0600); err != nil {
+	if err := yaml.Unmarshal(data, &c); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// Save writes the current config value to the specified path
+func (c *Config) Save(path string) error {
+	data, err := yaml.Marshal(c)
+	if err != nil {
+		return err
+	}
+
+	if err := ioutil.WriteFile(path, data, 0600); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetCurrentContext returns the current context
+func (c *Config) GetCurrentContext() (*Context, error) {
+	if c == nil || len(c.CurrentContext) == 0 {
+		return nil, errors.New("current context is not set")
+	}
+
+	context, ok := c.Contexts[c.CurrentContext]
+	if !ok {
+		return nil, errors.New("current context does not exist")
+	}
+
+	return context, nil
+}
+
+// GetCurrentContextNetwork returns the current network
+func (c *Config) GetCurrentContextNetwork() (*Network, error) {
+	context, err := c.GetCurrentContext()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(context.Network) == 0 {
+		return nil, errors.New("no network is set for current context")
+	}
+
+	network, ok := c.Networks[context.Network]
+	if !ok {
+		return nil, errors.New("network of the current context does not exist")
+	}
+
+	return network, nil
+}
+
+// NewConfig returns a new config
+func NewConfig() *Config {
+	return &Config{
+		Networks: make(map[string]*Network),
+		Contexts: make(map[string]*Context),
+	}
 }
