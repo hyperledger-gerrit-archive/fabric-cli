@@ -4,7 +4,7 @@ Copyright State Street Corp. All Rights Reserved.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package profile_test
+package network_test
 
 import (
 	"bytes"
@@ -16,16 +16,16 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/spf13/cobra"
 
-	"github.com/hyperledger/fabric-cli/cmd/commands/profile"
+	"github.com/hyperledger/fabric-cli/cmd/commands/network"
 	"github.com/hyperledger/fabric-cli/pkg/environment"
 )
 
-func TestProfile(t *testing.T) {
+func TestNetwork(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Profile Suite")
+	RunSpecs(t, "Network Suite")
 }
 
-var _ = Describe("ProfileCommand", func() {
+var _ = Describe("NetworkCommand", func() {
 	var (
 		cmd      *cobra.Command
 		settings *environment.Settings
@@ -45,19 +45,17 @@ var _ = Describe("ProfileCommand", func() {
 		})
 
 		JustBeforeEach(func() {
-			cmd = profile.NewProfileCommand(settings)
+			cmd = network.NewNetworkCommand(settings)
 		})
 
-		It("should create a profile commmand", func() {
-			Expect(cmd.Name()).To(Equal("profile"))
+		It("should create a network commmand", func() {
+			Expect(cmd.Name()).To(Equal("network"))
 			Expect(cmd.HasSubCommands()).To(BeTrue())
 			Expect(cmd.Execute()).Should(Succeed())
-			Expect(fmt.Sprint(out)).To(ContainSubstring("profile [command]"))
+			Expect(fmt.Sprint(out)).To(ContainSubstring("network [command]"))
 			Expect(fmt.Sprint(out)).To(ContainSubstring("list"))
-			Expect(fmt.Sprint(out)).To(ContainSubstring("create"))
+			Expect(fmt.Sprint(out)).To(ContainSubstring("set"))
 			Expect(fmt.Sprint(out)).To(ContainSubstring("delete"))
-			Expect(fmt.Sprint(out)).To(ContainSubstring("show"))
-			Expect(fmt.Sprint(out)).To(ContainSubstring("use"))
 		})
 	})
 })
