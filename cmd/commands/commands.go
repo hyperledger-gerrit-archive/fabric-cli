@@ -8,8 +8,8 @@ package commands
 
 import (
 	"github.com/hyperledger/fabric-cli/cmd/commands/channel"
+	"github.com/hyperledger/fabric-cli/cmd/commands/config"
 	"github.com/hyperledger/fabric-cli/cmd/commands/plugin"
-	"github.com/hyperledger/fabric-cli/cmd/commands/profile"
 	"github.com/hyperledger/fabric-cli/pkg/environment"
 	"github.com/spf13/cobra"
 )
@@ -18,13 +18,13 @@ import (
 // Settings can be leveraged here to disable commands
 func All(settings *environment.Settings) []*cobra.Command {
 	return []*cobra.Command{
-		// fabric plugin < list | install | uninstall >
+		// fabric plugin [subcommand]
 		plugin.NewPluginCommand(settings),
 
-		// fabric profile < list | create | delete | show | use >
-		profile.NewProfileCommand(settings),
+		// fabric config [subcommand]
+		config.NewConfigCommand(settings),
 
-		// fabric channel < create | join | update | list | config >
+		// fabric channel [subcommand]
 		channel.NewChannelCommand(settings),
 	}
 }
