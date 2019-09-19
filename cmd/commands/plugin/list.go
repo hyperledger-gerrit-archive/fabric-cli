@@ -21,9 +21,11 @@ func NewPluginListCommand(settings *environment.Settings) *cobra.Command {
 	c := ListCommand{}
 
 	c.Settings = settings
-	c.Handler = &plugin.DefaultHandler{
-		Dir:      settings.Home.Plugins(),
-		Filename: plugin.DefaultFilename,
+	c.Handler = func() plugin.Handler {
+		return &plugin.DefaultHandler{
+			Dir:      settings.Home.Plugins(),
+			Filename: plugin.DefaultFilename,
+		}
 	}
 
 	cmd := &cobra.Command{
@@ -42,12 +44,12 @@ func NewPluginListCommand(settings *environment.Settings) *cobra.Command {
 // ListCommand implements the plugin list command
 type ListCommand struct {
 	common.Command
-	Handler plugin.Handler
+	Handler func() plugin.Handler
 }
 
 // Run executes the command
 func (c *ListCommand) Run() error {
-	plugins, err := c.Handler.GetPlugins()
+	plugins, err := c.Handler().GetPlugins()
 	if err != nil {
 		return err
 	}

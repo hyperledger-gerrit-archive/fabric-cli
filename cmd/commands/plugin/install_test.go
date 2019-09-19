@@ -18,6 +18,7 @@ import (
 
 	"github.com/hyperledger/fabric-cli/cmd/commands/plugin"
 	"github.com/hyperledger/fabric-cli/pkg/environment"
+	plug "github.com/hyperledger/fabric-cli/pkg/plugin"
 	"github.com/hyperledger/fabric-cli/pkg/plugin/mocks"
 )
 
@@ -83,7 +84,7 @@ var _ = Describe("PluginInstallImplementation", func() {
 				Out: out,
 			},
 		}
-		impl.Handler = handler
+		impl.Handler = func() plug.Handler { return handler }
 	})
 
 	It("should not be nil", func() {

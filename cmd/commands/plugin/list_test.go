@@ -84,7 +84,7 @@ var _ = Describe("PluginListImplementation", func() {
 				Out: out,
 			},
 		}
-		impl.Handler = handler
+		impl.Handler = func() plug.Handler { return handler }
 	})
 
 	It("should not be nil", func() {

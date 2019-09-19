@@ -22,9 +22,11 @@ func NewPluginInstallCommand(settings *environment.Settings) *cobra.Command {
 	c := InstallCommand{}
 
 	c.Settings = settings
-	c.Handler = &plugin.DefaultHandler{
-		Dir:      settings.Home.Plugins(),
-		Filename: plugin.DefaultFilename,
+	c.Handler = func() plugin.Handler {
+		return &plugin.DefaultHandler{
+			Dir:      settings.Home.Plugins(),
+			Filename: plugin.DefaultFilename,
+		}
 	}
 
 	cmd := &cobra.Command{
@@ -49,7 +51,7 @@ func NewPluginInstallCommand(settings *environment.Settings) *cobra.Command {
 // InstallCommand implements the plugin install command
 type InstallCommand struct {
 	common.Command
-	Handler plugin.Handler
+	Handler func() plugin.Handler
 
 	Path string
 }
@@ -65,7 +67,7 @@ func (c *InstallCommand) Validate() error {
 
 // Run executes the command
 func (c *InstallCommand) Run() error {
-	err := c.Handler.InstallPlugin(c.Path)
+	err := c.Handler().InstallPlugin(c.Path)
 	if err != nil {
 		return err
 	}
